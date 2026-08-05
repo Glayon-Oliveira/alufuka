@@ -5,12 +5,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
+import com.lmlasmo.alufuka.comunication.Receptor;
+import com.lmlasmo.alufuka.comunication.StdReceptor;
 import com.lmlasmo.alufuka.executor.Command;
 import com.lmlasmo.alufuka.executor.CommandExecutor;
 import com.lmlasmo.alufuka.executor.ExceptionHandler;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.Setter;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
@@ -23,6 +27,10 @@ public final class Context {
     
     private static SimpleModule SIMPLE_MODULE = new SimpleModule();
     private static ObjectMapper OBJECT_MAPPER = createObjectMapper();
+    
+    @Setter
+    @NonNull
+    private static Receptor RECEPTOR = new StdReceptor();
 
     public static List<CommandExecutor<?>> commandExecutors() {
         return Collections.unmodifiableList(COMMAND_EXECUTORS);
@@ -34,6 +42,10 @@ public final class Context {
     
     public static ObjectMapper objectMapper() {
         return OBJECT_MAPPER;
+    }
+    
+    public static Receptor receptor() {
+    	return RECEPTOR;
     }
     
     public static void register(CommandExecutor<? extends Command> executor) {
