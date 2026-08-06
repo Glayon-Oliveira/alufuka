@@ -219,12 +219,27 @@ public class JavaSourceParser {
 		}
 		
 		if(comment.isJavadocComment()) {
-			return comment.getContent();
+			return normalizeJavadoc(comment.getContent());
 		}else if(comment.isTraditionalJavadocComment()) {
-			return comment.getContent();
+			return normalizeJavadoc(comment.getContent());
 		}
 		
 		return null;
+	}
+	
+	private static String normalizeJavadoc(String javadoc) {
+		return javadoc.lines()
+				.filter(j -> !j.isBlank())
+				.map(j -> {
+					j = j.trim();
+					
+					if(j.startsWith("*")) {
+						return j.replace("*", "").trim();
+					}
+					
+					return j;
+				})
+				.collect(Collectors.joining("\n"));
 	}
 	
 	private static String parseDefinition(Node node) {

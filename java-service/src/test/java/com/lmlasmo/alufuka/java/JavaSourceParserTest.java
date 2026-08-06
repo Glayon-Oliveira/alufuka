@@ -55,7 +55,7 @@ class JavaSourceParserTest {
 	@Test
 	void shouldParseClassJavadoc() {
 		assertEquals(
-			"\n\s*\s...\n\s",
+			"...",
 			javaType.getJavadoc()
 		);
 	}
@@ -179,7 +179,7 @@ class JavaSourceParserTest {
 	@Test
 	void shouldParseMethodJavadoc() throws IOException {
 	    assertEquals(
-    		"\n\t\s*\s...\n\t\s*\n\t\s*\s@param\s...\n\t\s*\s@return\s...\n\t\s",
+    		"...\n\n@param ...\n@return ...",
     		findMember(javaType, "calculate").getJavadoc()
     		);
 	}
