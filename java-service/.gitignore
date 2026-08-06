@@ -34,3 +34,6 @@ build/
 
 *.env
 /.apt_generated_tests/
+
+
+dependency-reduced-pom.xml
