@@ -1,0 +1,23 @@
+{
+  "name": "alufuka",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "main.js",
+  "scripts": {
+    "start": "concurrently -k \"vite\" \"wait-on tcp:5173 && electron .\""
+  },
+  "dependencies": {
+    "electron": "^41.7.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.5",
+    "concurrently": "^9.2.4",
+    "vite": "^8.2.1",
+    "wait-on": "^9.1.0"
+  }
+}
