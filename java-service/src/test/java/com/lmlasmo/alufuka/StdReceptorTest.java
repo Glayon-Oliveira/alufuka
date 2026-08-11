@@ -99,8 +99,28 @@ class StdReceptorTest {
 
         receptorThread.start();
 
-        String readerCommand = "{\"type\":\"READER\",\"file_path\":\"%s\"}\n".formatted(testFile.toString());
-        String writerCommand = "{\"type\":\"JAVADOC_WRITER\",\"file_path\":\"%s\",\"path\":\"Test.Test(T)\", \"content\":\"Javadoc\"}\n".formatted(testFile.toString());
+        String readerCommand = """
+        		{
+        			"type": "READER",
+        			"file_path": "%s"
+        		}
+        		"""
+        		.replace("\n", "")
+        		.formatted(testFile.toString())
+        		+ "\n";
+        
+        String writerCommand = """
+        		{
+        			"type": "JAVADOC_WRITER",
+        			"file_path": "%s",
+        			"path": "Test.Test",
+        			"content": "Javadoc",
+        			"types": ["T"]
+        		}
+        		"""
+        		.replace("\n", "")
+        		.formatted(testFile.toString())
+        		+ "\n";
 
         inputWriter.write(readerCommand.getBytes(StandardCharsets.UTF_8));
         inputWriter.flush();
@@ -137,10 +157,16 @@ class StdReceptorTest {
     }
 
     private void waitForOutput() throws InterruptedException {
-    	long timeout = System.currentTimeMillis() + 10000;
+    	long timeout = System.currentTimeMillis() + 30000;
+    	boolean expires = false;
     	
-        while (output.size() == 0 && System.currentTimeMillis() <= timeout) {
+        while(!expires && output.size() == 0 && !output.toString(StandardCharsets.UTF_8).endsWith("\n")) {
             Thread.sleep(10);
+            expires = System.currentTimeMillis() >= timeout;
+        }
+        
+        if(expires) {
+        	throw new RuntimeException(output.toString(StandardCharsets.UTF_8));
         }
     }
 

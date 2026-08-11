@@ -15,8 +15,8 @@ contextBridge.exposeInMainWorld("api", {
         return ipcRenderer.invoke("read-java", filePath);
     },
 
-    writeJavadoc: (filePath, path, content) => {
-        return ipcRenderer.invoke("write-javadoc", filePath, path, content);
+    writeJavadoc: (filePath, path, content, types) => {
+        return ipcRenderer.invoke("write-javadoc", filePath, path, content, types);
     }
 
 });

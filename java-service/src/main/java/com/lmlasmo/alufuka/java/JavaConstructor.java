@@ -9,18 +9,18 @@ import lombok.ToString;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class JavaConstructor extends JavaElement {
+public class JavaConstructor extends JavaElementWithArguments {
 	
-	public JavaConstructor(String name, String definition) {
-		super(name, definition);
+	public JavaConstructor(String name, String definition, List<String> argumentTypes) {
+		super(name, definition, argumentTypes);
 	}
 	
-	public JavaConstructor(String name, String definition, List<String> annotations) {
-		super(name, definition, annotations);
+	public JavaConstructor(String name, String definition, List<String> argumentTypes, List<String> annotations) {
+		super(name, definition, argumentTypes, annotations);
 	}
 	
-	public JavaConstructor(String name, String definition, List<String> annotations, String javadoc) {
-		super(name, definition, annotations, javadoc);
+	public JavaConstructor(String name, String definition, List<String> argumentTypes, List<String> annotations, String javadoc) {
+		super(name, definition, argumentTypes, annotations, javadoc);
 	}
 
 }

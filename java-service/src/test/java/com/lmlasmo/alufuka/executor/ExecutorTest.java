@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
@@ -114,7 +115,7 @@ class ExecutorTest {
     }
     
     JavadocWriterCommand javadocWriterCommand(String filePath) {
-    	return new JavadocWriterCommand(filePath, "Test.Test(T)", "Test javadoc");
+    	return new JavadocWriterCommand(filePath, "Test.Test", "Test javadoc", List.of("T"));
     }
     
 }

@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -63,7 +64,7 @@ class JavadocWriterTest {
 	@Test
 	void shouldWriteJavadocOnMethod() throws IOException {
 	    String source = writeJavadoc(
-	        new JavadocTarget("Test.convert(E,List)", "Convert documentation")
+	        new JavadocTarget("Test.convert", "Convert documentation", List.of("E", "List"))
 	    );
 	    
 	    assertThat(source)
@@ -76,7 +77,11 @@ class JavadocWriterTest {
 	@Test
 	void shouldWriteJavadocOnOverrideMethod() throws IOException {
 	    String source = writeJavadoc(
-	        new JavadocTarget("Test.convert(E,List,String[])", "Convert documentation")
+	        new JavadocTarget(
+	        		"Test.convert",
+	        		"Convert documentation",
+	        		List.of("E", "List", "String...")
+	        		)
 	    );
 	    
 	    assertThat(source)
@@ -122,8 +127,9 @@ class JavadocWriterTest {
 	void shouldWriteJavadocOnNestedOverrideConstructor() throws IOException {
 	    String source = writeJavadoc(
 	        new JavadocTarget(
-	            "Test.NestedClass.NestedClass(int)",
-	            "Override constructor documentation"
+	            "Test.NestedClass.NestedClass",
+	            "Override constructor documentation",
+	            List.of("int")
 	        )
 	    );
 

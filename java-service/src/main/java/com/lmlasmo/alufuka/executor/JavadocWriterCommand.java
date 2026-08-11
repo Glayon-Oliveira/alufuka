@@ -1,5 +1,7 @@
 package com.lmlasmo.alufuka.executor;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -18,14 +20,16 @@ public class JavadocWriterCommand extends JavadocTarget implements Command, Comm
 
 	private final CommandType type = CommandType.JAVADOC_WRITER;
 	private String filePath;
+	private List<String> types;
 	
 	@JsonCreator
 	public JavadocWriterCommand(
 			@JsonProperty("file_path") @JsonAlias("fp") String filePath,
 	        @JsonProperty("path") String path,
-	        @JsonProperty("content") String content) {
+	        @JsonProperty("content") String content,
+	        @JsonProperty(value = "types", required = false) List<String> types) {
 		
-		super(path, content);
+		super(path, content, types);
 		this.filePath = filePath;
 	}
 	

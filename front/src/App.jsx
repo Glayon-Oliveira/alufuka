@@ -34,12 +34,12 @@ export function FailView({file, message, name = undefined, cause = undefined}) {
     )
 }
 
-export function Javadoc({ file, path, javadoc }) {
+export function Javadoc({ file, path, javadoc, types = undefined }) {
     const [editing, setEditing] = useState(false);
     const [value, setValue] = useState(javadoc ?? "");
 
     async function save() {
-        await window.api.writeJavadoc(file, path, value);
+        await window.api.writeJavadoc(file, path, value, types);
 
         setEditing(false);
     }
@@ -93,6 +93,10 @@ export function Javadoc({ file, path, javadoc }) {
 export function JavaMemberView({ member, path, file }) {
     const id = useId();
 
+    if(member.name.includes("Test")) {
+        console.log(member)
+    }
+
     const currentPath = `${path}.${member.name}`;
 
     return (
@@ -125,7 +129,7 @@ export function JavaMemberView({ member, path, file }) {
                             <code>{member.definition}</code>
                         </div>
 
-                        <Javadoc file={file} path={currentPath} javadoc={member.javadoc}/>
+                        <Javadoc file={file} path={currentPath} javadoc={member.javadoc} types={member?.argumentTypes}/>
                     </div>
                 </div>
             </div>

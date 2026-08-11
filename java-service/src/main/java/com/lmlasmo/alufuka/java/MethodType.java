@@ -9,18 +9,18 @@ import lombok.ToString;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class MethodType extends JavaElement {
+public class MethodType extends JavaElementWithArguments {
 	
-	public MethodType(String name, String definition) {
-		super(name, definition);
+	public MethodType(String name, String definition, List<String> argumentTypes) {
+		super(name, definition, argumentTypes);
 	}
 	
-	public MethodType(String name, String definition, List<String> annotations) {
-		super(name, definition, annotations);
+	public MethodType(String name, String definition, List<String> argumentTypes, List<String> annotations) {
+		super(name, definition, argumentTypes, annotations);
 	}
 	
-	public MethodType(String name, String definition, List<String> annotations, String javadoc) {
-		super(name, definition, annotations, javadoc);
+	public MethodType(String name, String definition, List<String> argumentTypes, List<String> annotations, String javadoc) {
+		super(name, definition, argumentTypes, annotations, javadoc);
 	}
 
 }

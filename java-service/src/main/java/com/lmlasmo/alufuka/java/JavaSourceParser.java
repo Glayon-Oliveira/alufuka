@@ -21,11 +21,13 @@ import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.RecordDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter;
 
 import lombok.AccessLevel;
@@ -144,6 +146,7 @@ public class JavaSourceParser {
 			member = new JavaConstructor(
 					constructor.getNameAsString(),
 					constructor.getDeclarationAsString(),
+					parseParameterTypes(constructor.getParameters()),
 					parseAnnotations(constructor.getAnnotations()),
 					parseJavadoc(constructor.getComment().orElse(null))
 					);
@@ -153,6 +156,7 @@ public class JavaSourceParser {
 			member = new JavaConstructor(
 					constructor.getNameAsString(),
 					constructor.getDeclarationAsString(true, true, true),
+					List.of(),
 					parseAnnotations(constructor.getAnnotations()),
 					parseJavadoc(constructor.getComment().orElse(null))
 					);
@@ -204,13 +208,15 @@ public class JavaSourceParser {
 	}
 	
 	private static MethodType parseMethod(MethodDeclaration declaration) {
-		MethodType methodType = new MethodType(declaration.getNameAsString(), parseDefinition(declaration));
-		
-		methodType.setAnnotations(parseAnnotations(declaration.getAnnotations()));
-		methodType.setContent(methodType.getContent());
-		methodType.setJavadoc(declaration.getJavadocComment().map(JavaSourceParser::parseJavadoc).orElse(null));
-		
-		return methodType;
+		return new MethodType(
+				declaration.getNameAsString(),
+				parseDefinition(declaration),
+				parseParameterTypes(declaration.getParameters()),
+				parseAnnotations(declaration.getAnnotations()),
+				declaration.getJavadocComment()
+					.map(JavaSourceParser::parseJavadoc)
+					.orElse(null)
+				);
 	}
 	
 	private static String parseJavadoc(Comment comment) {
@@ -364,6 +370,27 @@ public class JavaSourceParser {
 		}
 		
 		return String.join(" ", values);
+	}
+	
+	static List<String> parseParameterTypes(List<Parameter> parameters) {
+		return parameters.stream()
+				.map(p -> parseType(p.getType(), p.isVarArgs()))
+				.toList();
+	}
+	
+	static String parseType(Type type, boolean isVarargs) {
+		String strType = type.toString();
+		
+		if(strType.contains("<")) {
+			strType = strType.substring(0, strType.lastIndexOf("<"))
+					.trim();
+		}
+		
+		if(isVarargs) {
+			strType += "...";
+		}
+		
+		return strType;
 	}
 	
 	private static String join(Collection<?> values, String delimiter) {

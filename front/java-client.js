@@ -130,12 +130,13 @@ class JavaClient {
         }));
     }
 
-    writeJavadoc(filePath, javaPath, content) {
+    writeJavadoc(filePath, javaPath, content, types = undefined) {
         return this.send(JSON.stringify({
             type: "JAVADOC_WRITER",
             file_path: filePath,
             path: javaPath,
-            content: content
+            content: content,
+            types: types
         }));
     }
 

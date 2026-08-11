@@ -102,8 +102,8 @@ app.whenReady().then(async () => {
 
     ipcMain.handle(
         "write-javadoc",
-        async (event, filePath, javaPath, content) => {
-            return await javaClient.writeJavadoc(filePath, javaPath, content);
+        async (event, filePath, javaPath, content, types) => {
+            return await javaClient.writeJavadoc(filePath, javaPath, content, types);
         }
     );
 

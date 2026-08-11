@@ -112,6 +112,12 @@ class JavaSourceParserTest {
             "protected Test(T value) throws IllegalArgumentException"
 	    	);
 	}
+	
+	@Test
+	void shouldParseArgumentTypesOfConstructors() throws IOException {
+		assertArgumensTypes("Test", "T", "String");
+		assertArgumensTypes("Test", "T");
+	}
 
 	@Test
 	void shouldParseMethods() throws IOException {
@@ -156,6 +162,18 @@ class JavaSourceParserTest {
 	    	"public static int compare(String[] vs1, String[] vs2)",
 	    	"public static int compare(String vs1, String vs2)"
 	    	);
+	}
+	
+	@Test
+	void shouldParseArgumentTypesOfMethod() throws IOException {
+		assertArgumensTypes("calculate", "T");
+		assertArgumensTypes("validate", "T");
+		
+		assertArgumensTypes("convert", "E", "List");
+		assertArgumensTypes("convert", "E", "List", "String...");
+		
+		assertArgumensTypes("compare", "String[]", "String[]");
+		assertArgumensTypes("compare", "String", "String");
 	}
 
 	@Test
@@ -289,6 +307,21 @@ class JavaSourceParserTest {
 		assertThatCollection(name != null ? findMembers(javaType, name) : javaType.getMembers())
 	    .map(JavaElement::getDefinition)
 	    .containsExactly(containing);
+	}
+	
+	private void assertArgumensTypes(String name, String... types) {
+		assertArgumensTypes(javaType, name, types);
+	}
+	
+	private void assertArgumensTypes(JavaType javaType, String name, String... types) {
+		assertThatCollection(findMembers(javaType, name))
+		.filteredOn(JavaElementWithArguments.class::isInstance)
+		.map(JavaElementWithArguments.class::cast)
+		.satisfiesOnlyOnce(a -> {
+			assertThatCollection(a.getArgumentTypes())
+            .hasSize(types.length)
+            .containsExactly(types);
+		});
 	}
 	
 	private JavaElement findMember(JavaType type, String name) {
