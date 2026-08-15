@@ -156,6 +156,38 @@ class JavadocWriterTest {
 	                + "\t\tprivate int value;\n");
 	}
 	
+	@Test
+	void shouldWriteJavadocOnNestedAnnotation() throws IOException {
+	    String source = writeJavadoc(
+	        new JavadocTarget(
+	            "Test.TestAnnotation",
+	            "Nested value documentation"
+	        )
+	    );
+
+	    assertThat(source)
+	        .contains("\t/**\n"
+	                + "\t * Nested value documentation\n"
+	                + "\t */\n"
+	                + "\t@Documented\n"
+	                + "\t@Retention(RetentionPolicy.RUNTIME)\n"
+	                + "\t@Target({TYPE, FIELD, METHOD})\n"
+	                + "\tpublic @interface TestAnnotation ");
+	    
+	    source = writeJavadoc(
+		        new JavadocTarget(
+		            "Test.TestAnnotation.value",
+		            "Nested value documentation"
+		        )
+		    );
+
+	    assertThat(source)
+	        .contains("\t\t/**\n"
+	                + "\t\t * Nested value documentation\n"
+	                + "\t\t */\n"
+	                + "\t\tString value() default \"\";");
+	}
+	
 	private String writeJavadoc(JavadocTarget target) throws IOException {
 	    ByteArrayOutputStream output = new ByteArrayOutputStream();
 

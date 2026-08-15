@@ -14,6 +14,8 @@ import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.body.AnnotationDeclaration;
+import com.github.javaparser.ast.body.AnnotationMemberDeclaration;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.CompactConstructorDeclaration;
@@ -81,6 +83,8 @@ public class JavaSourceParser {
 			return parseEnum(type.asEnumDeclaration());
 		}else if(type.isRecordDeclaration()) {
 			return parseRecord(type.asRecordDeclaration());
+		}else if(type.isAnnotationDeclaration()) {
+			return parseAnnotation(type.asAnnotationDeclaration());
 		}
 		
 		return null;
@@ -137,6 +141,22 @@ public class JavaSourceParser {
 		return java;
 	}
 	
+	private static JavaType parseAnnotation(AnnotationDeclaration declaration) {
+		List<JavaElement> members = declaration.getMembers()
+				.stream()
+				.map(JavaSourceParser::parseMember)
+				.filter(Objects::nonNull)
+				.toList();
+		
+		JavaType java = new JavaType(declaration.getNameAsString(), parseDefinition(declaration));
+		java.setAnnotations(parseAnnotations(declaration.getAnnotations()));
+		java.setMembers(members);
+		java.setJavadoc(parseJavadoc(declaration.getComment().orElse(null)));
+		java.setContent(declaration.toString());
+		
+		return java;
+	}
+	
 	private static JavaElement parseMember(BodyDeclaration<?> declaration) {
 		JavaElement member = null;
 		
@@ -180,6 +200,10 @@ public class JavaSourceParser {
 		}else if(declaration.isTypeDeclaration()) {
 			TypeDeclaration<?> type = declaration.asTypeDeclaration();
 			member = parseType(type);
+		}else if(declaration.isAnnotationMemberDeclaration()) {
+			AnnotationMemberDeclaration annotationMember = declaration.asAnnotationMemberDeclaration();
+			
+			member = new JavaElement(annotationMember.getNameAsString(), annotationMember.toString());
 		}
 		
 		if(member != null) {
@@ -259,6 +283,8 @@ public class JavaSourceParser {
 			return parseMethodDefinition(declaration);
 		}else if(node instanceof FieldDeclaration declaration) {
 			return declaration.toString();
+		}else if(node instanceof AnnotationDeclaration declaration) {
+			return parseAnnotationDefinition(declaration);
 		}
 		
 		return null;
@@ -343,6 +369,14 @@ public class JavaSourceParser {
 		}
 		
 		return String.join(" ", values);
+	}
+	
+	private static String parseAnnotationDefinition(AnnotationDeclaration declaration) {
+		String modifiers = parseModifiers(declaration.getModifiers());
+		
+		String name = declaration.getNameAsString();
+		
+		return String.join(" ", modifiers, "@interface", name);
 	}
 	
 	private static String parseMethodDefinition(MethodDeclaration declaration) {

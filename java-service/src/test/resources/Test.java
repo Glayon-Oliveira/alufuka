@@ -1,8 +1,13 @@
 package com.dev.top;
 
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+
 import static java.util.Calendar.JANUARY;
 
 import java.io.Serializable;
+import java.lang.annotation.*;
 import java.util.*;
 import java.util.Comparator;
 import java.util.List;
@@ -153,6 +158,28 @@ public abstract class Test<T extends Number & Comparable<T>>
 
 	private static final class PrivateNestedClass {
 
+	}
+	
+	@Documented
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({TYPE, FIELD, METHOD})
+	public @interface TestAnnotation {
+
+		String value() default "";
+
+		String name() default "default";
+
+		int number() default 42;
+
+		boolean enabled() default true;
+
+		Class<?> type() default Object.class;
+
+		Status status() default Status.UNKNOWN;
+
+		String[] tags() default {};
+
+		int[] numbers() default {1, 2, 3};
 	}
 
 	@Override

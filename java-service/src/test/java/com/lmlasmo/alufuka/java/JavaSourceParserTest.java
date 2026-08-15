@@ -292,6 +292,20 @@ class JavaSourceParserTest {
 	        .isEmpty();
 	}
 	
+	@Test
+	void shouldParseNestedAnnotation() throws IOException {
+		JavaType nested = findType(javaType, "TestAnnotation");
+		
+		assertEquals("TestAnnotation", nested.getName());
+		assertEquals("public @interface TestAnnotation", nested.getDefinition());
+		
+		assertThatCollection(nested.getAnnotations())
+		.hasSize(3);
+		
+		assertThatCollection(nested.getMembers())
+		.hasSize(8);
+	}
+	
 	private void assertMemberNames(JavaType javaType, int size, String... containing) {
 		assertThatCollection(javaType.getMembers())
 		.hasSize(size)
