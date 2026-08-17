@@ -40,10 +40,14 @@ class JavaSourceParserTest {
 	@Test
 	void shouldParseImports() {
 		assertThatCollection(source.getImports())
-		.hasSize(7)
+		.hasSize(11)
 		.contains(
+			"static java.lang.annotation.ElementType.TYPE",
+			"static java.lang.annotation.ElementType.FIELD",
+			"static java.lang.annotation.ElementType.METHOD",
 			"static java.util.Calendar.JANUARY",
 			"java.io.Serializable",
+			"java.lang.annotation.*",
 			"java.util.*",
 			"java.util.Comparator",
 			"java.util.List",

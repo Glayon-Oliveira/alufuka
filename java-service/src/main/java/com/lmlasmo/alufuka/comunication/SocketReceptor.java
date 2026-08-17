@@ -3,13 +3,11 @@ package com.lmlasmo.alufuka.comunication;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.lmlasmo.alufuka.Context;
 import com.lmlasmo.alufuka.executor.Executor;
 import com.lmlasmo.alufuka.executor.Result;
 
@@ -38,8 +36,8 @@ public class SocketReceptor implements Receptor {
 				Socket socket = server.accept();
 				
 				pool.execute(() -> {
-					try(BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-							PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)) {
+					try(BufferedReader reader = reader(socket);
+							Protocol protocol = Protocol.newInstance(socket.getOutputStream())) {
 						
 						String next;
 						
@@ -47,9 +45,7 @@ public class SocketReceptor implements Receptor {
 							System.out.println("Receive: " + next);
 							Result result = executor.execute(next.getBytes());
 							
-							String strResult = Context.objectMapper().writeValueAsString(result);
-							
-							writer.println(strResult);
+							protocol.writeAndFlush(result);
 						}
 					}catch(Exception e) {
 						e.printStackTrace();
@@ -57,6 +53,10 @@ public class SocketReceptor implements Receptor {
 				});
 			}
 		}
+	}
+	
+	private BufferedReader reader(Socket socket) throws IOException {
+		return new BufferedReader(new InputStreamReader(socket.getInputStream()));
 	}
 
 	@Override

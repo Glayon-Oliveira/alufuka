@@ -5,7 +5,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import com.lmlasmo.alufuka.Context;
 import com.lmlasmo.alufuka.executor.Executor;
 import com.lmlasmo.alufuka.executor.FailureResult;
 import com.lmlasmo.alufuka.executor.Result;
@@ -30,16 +29,15 @@ public class StdReceptor implements Receptor {
 		InputStreamReader in = new InputStreamReader(System.in);
 		BufferedReader reader = new BufferedReader(in);
 		
+		Protocol protocol = Protocol.newInstance(System.out);
+		
 		String next;
 		
 		while(running && (next = reader.readLine()) != null) {
 			try {
 				Result result = executor.execute(next.getBytes());
 				
-				String json = Context.objectMapper().writeValueAsString(result);
-				
-				System.out.println(json);
-				System.out.flush();
+				protocol.writeAndFlush(result);
 			}catch(Exception e) {
 				StringWriter swriter = new StringWriter();
 				PrintWriter pwriter = new PrintWriter(swriter);
@@ -49,10 +47,7 @@ public class StdReceptor implements Receptor {
 				FailureResult result = new FailureResult(e.getMessage());
 				result.setCause(swriter.toString());
 				
-				String json = Context.objectMapper().writeValueAsString(result);
-				
-				System.out.println(json);
-				System.out.flush();
+				protocol.writeAndFlush(result);
 			}
 		}
 	}

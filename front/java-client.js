@@ -55,41 +55,9 @@ class JavaClient {
     }
 
     isServiceRunning() {
-        return new Promise(resolve => {
-            const socket = net.createConnection(this.port, "localhost");
-            let buffer = "";
-
-            socket.setTimeout(500);
-
-            socket.on("connect", () => {
-                socket.write("{}\n");
-            });
-
-            socket.on("data", data => {
-                buffer += data.toString();
-
-                if(!buffer.endsWith("\n")) {
-                    return;
-                }
-
-                socket.destroy();
-
-                try{
-                    resolve(JSON.parse(buffer.trim()).status === "FAILURE");
-                }catch{
-                    resolve(false);
-                }
-            });
-
-            socket.on("timeout", () => {
-                socket.destroy();
-                resolve(false);
-            });
-
-            socket.on("error", () => {
-                resolve(false);
-            });
-        });
+        return this.send("{}")
+            .then((result) => result?.status)
+            .catch(() => false)
     }
 
     async waitForService() {
@@ -101,21 +69,45 @@ class JavaClient {
     send(data) {
         return new Promise((resolve, reject) => {
             const socket = net.createConnection(this.port, "localhost");
-            let buffer = "";
+            let payload = null;
+            let buffer = Buffer.alloc(0)
 
             socket.on("connect", () => socket.write(data + "\n"));
 
             socket.on("data", chunk => {
-                buffer += chunk.toString();
+                buffer = Buffer.concat([buffer, chunk])
 
-                if(buffer.endsWith("\n")) {
-                    socket.destroy();
+                if(payload === null && buffer.length >= 4) {
+                    payload = buffer.readInt32BE(0);
+                }else if(payload == null) {
+                    return
+                }
 
-                    try{
-                        resolve(JSON.parse(buffer.trim()));
-                    }catch(error) {
-                        reject(error);
-                    }
+                if(payload < 0) {
+                    socket.destroy()
+                    reject()
+                    return
+                }
+
+                let expected = 4 + payload + 1;
+
+                if(buffer.length < expected) {
+                    return;
+                }
+
+                socket.destroy()
+
+                if(buffer[expected-1] !== 0x0A) {
+                    reject()
+                    return
+                }
+
+                let content = buffer.subarray(4, payload+4);
+
+                try{
+                    resolve(JSON.parse(content.toString("utf8")));
+                }catch(error) {
+                    reject(error);
                 }
             });
 

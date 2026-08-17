@@ -17,6 +17,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.lmlasmo.alufuka.comunication.Protocol;
 import com.lmlasmo.alufuka.comunication.StdReceptor;
 
 class StdReceptorTest {
@@ -157,12 +158,16 @@ class StdReceptorTest {
     }
 
     private void waitForOutput() throws InterruptedException {
-    	long timeout = System.currentTimeMillis() + 30000;
+    	long timeout = System.currentTimeMillis() + 10000;
     	boolean expires = false;
     	
-        while(!expires && output.size() == 0 && !output.toString(StandardCharsets.UTF_8).endsWith("\n")) {
+        while(!expires) {
             Thread.sleep(10);
             expires = System.currentTimeMillis() >= timeout;
+            
+            if(Protocol.hasLine(output.toByteArray())) {
+            	return;
+            }
         }
         
         if(expires) {
