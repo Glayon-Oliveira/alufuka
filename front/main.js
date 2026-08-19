@@ -5,9 +5,9 @@ const path = require("path");
 const JavaClient = require("./java-client");
 const { log } = require("console");
 const { files } = require("jszip");
+const { spawn } = require("child_process");
 
 let javaClient;
-
 
 function createWindow() {
     const window = new BrowserWindow({
@@ -20,8 +20,16 @@ function createWindow() {
             nodeIntegration: false
         }
     });
-    
-    window.loadURL("http://localhost:5173");
+
+    if(!app.isPackaged) {
+        window.loadURL("http://localhost:5173");
+    }else {
+        window.loadFile(path.join(
+            process.resourcesPath,
+            "dist", 
+            "index.html"
+        ))
+    }
 }
 
 function findJavaFiles(directory) {
@@ -38,6 +46,21 @@ function findJavaFiles(directory) {
     }
 
     return result
+}
+
+function findAlufukaExecutable(binPath) {
+    const files = fs.readdirSync(binPath);
+
+    const file = files.find(name => {
+        const parsed = path.parse(name);
+        return parsed.name === "alufuka";
+    });
+
+    if (!file) {
+        throw new Error(`Not found alufuka executable in: ${binPath}`);
+    }
+
+    return path.join(binPath, file);
 }
 
 ipcMain.handle("choose-java-file", async () => {
@@ -73,21 +96,25 @@ ipcMain.handle("choose-directory", async () => {
 });
 
 app.whenReady().then(async () => {
-    const javaServicePath = path.join(
-        __dirname,
-        "..",
-        "java-service"
-    );
-
     const javaServiceJar = path.join(
         __dirname,
         "java-service",
         "alufuka.jar"
     );
 
+    let serviceProcess = null;
+
+    if(app.isPackaged) {
+        const binPath = path.join(process.resourcesPath, "alufuka", "bin")
+
+        const executable = findAlufukaExecutable(binPath)
+
+        serviceProcess = spawn(executable, {cwd: binPath})
+    }
+
     javaClient = new JavaClient(
         javaServiceJar,
-        javaServicePath
+        serviceProcess
     );
 
     await javaClient.start();

@@ -5,35 +5,22 @@ const net = require("net");
 
 class JavaClient {
 
-    constructor(javaServiceJar, javaServicePath) {
+    constructor(javaServiceJar, process = null) {
         this.javaServiceJar = javaServiceJar;
-        this.javaServicePath = javaServicePath;
-        this.process = null;
+        this.process = process;
         this.port = 5130;
     }
 
     async start() {
-        if (await this.isServiceRunning()) {
+        if(await this.isServiceRunning()) {
             return;
         }
 
-        if (!fs.existsSync(this.javaServiceJar)) {
-            await this.buildJavaService();
-
-            const generatedJar = path.join(
-                this.javaServicePath,
-                "target",
-                "alufuka.jar"
-            );
-
-            fs.mkdirSync(path.dirname(this.javaServiceJar), {recursive: true});
-
-            fs.copyFileSync(generatedJar, this.javaServiceJar);
-        }
-
-        this.process = spawn("java", ["-jar", this.javaServiceJar], {
-            stdio: ["ignore", "pipe", "pipe"]
-        });
+        if(!this.process) {
+            this.process = spawn("java", ["-jar", this.javaServiceJar], {
+                stdio: ["ignore", "pipe", "pipe"]
+            });
+        }        
 
         this.capture_process_out(this.process, "java");
 
